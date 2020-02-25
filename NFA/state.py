@@ -1,4 +1,5 @@
 from constants import *
+from functools import reduce 
 
 class State:
     def __init__(self, name='', accepting=False):
@@ -28,7 +29,18 @@ class State:
         return self.epsilonClosure
 
     def matches(self, string):
-        pass
+        matches = False
+        epsilons = self.getEpsilonClosure()
+        if not string:
+            if not epsilons:
+                return self.accepting
+            m = reduce((lambda x, y: x or y), [ep.accepting for ep in epsilons])
+            return m
+        for i, symbol in enumerate(string):
+            next_states = self.getTransitions(symbol).union(epsilons)
+            for state in next_states:
+                matches = matches or state.matches(string[i+1:])
+        return matches
     
     def __str__(self):
         return self.name
@@ -37,10 +49,11 @@ if __name__ == "__main__":
     a = State('1', False)
     b = State('2', False)
     c = State('3', False)
-    a.addTransition(EPSILON, b)
-    b.addTransition(EPSILON, c)
-    closure = a.getEpsilonClosure()
-    [print(c) for c in closure]
+    d = State('4', True)
+    a.addTransition('a', b)
+    b.addTransition('a', c)
+    c.addTransition(EPSILON, d)
+    print(a.matches('aa'))
 
 
     
