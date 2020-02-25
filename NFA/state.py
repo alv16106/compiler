@@ -28,19 +28,24 @@ class State:
         
         return self.epsilonClosure
 
-    def matches(self, string):
-        matches = False
+    def matches(self, string, visited = set()):
+        if self in visited:
+            return False
+        visited.add(self)
+
         epsilons = self.getEpsilonClosure()
         if not string:
-            if not epsilons:
-                return self.accepting
-            m = reduce((lambda x, y: x or y), [ep.accepting for ep in epsilons])
-            return m
-        for i, symbol in enumerate(string):
-            next_states = self.getTransitions(symbol).union(epsilons)
-            for state in next_states:
-                matches = matches or state.matches(string[i+1:])
-        return matches
+            if epsilons:
+                m = reduce((lambda x, y: x or y), [ep.matches('', visited) for ep in epsilons])
+                return m
+            return self.accepting
+
+        next_states = self.getTransitions(string[0])
+        in_epsilon = reduce((lambda x, y: x or y), [ep.matches(string, visited) for ep in epsilons])
+        if not next_states:
+            return in_epsilon
+        matches = reduce((lambda x, y: x or y), [s.matches(string[1:]) for s in next_states])
+        return matches or in_epsilon
     
     def __str__(self):
         return self.name
@@ -53,7 +58,7 @@ if __name__ == "__main__":
     a.addTransition('a', b)
     b.addTransition('a', c)
     c.addTransition(EPSILON, d)
-    print(a.matches('aa'))
+    print(a.matches('aaa'))
 
 
     
