@@ -1,1 +1,1 @@
-EPSILON = 'e'
+EPSILON = 'ε'

@@ -28,7 +28,7 @@ def operate(n1, n2, op):
 
 def evaluate(s):
     while '(' in s:
-        sub = s[s.find('(')+1:s.find(')')]
+        sub = s[s.find('(')+1:s.rfind(')')]
         temp_value = evaluate(sub)
         s = s.replace('('+ sub + ')', str(temp_value))
     ops, values = analize(s)
