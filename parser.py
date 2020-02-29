@@ -1,4 +1,5 @@
 from tree import Node
+from utils import print2D
 operations = '*+?.|'
 
 
@@ -28,23 +29,29 @@ def evaluate(s):
         sub = s[s.find('(')+1:s.rfind(')')]
         temp_value = evaluate(sub)
         nodes.append(temp_value)
-        s = s.replace('('+ sub + ')', '(')
+        print(temp_value)
+        s = s.replace('('+ sub + ')', ')')
     ops, values = tokenize(s)
 
     for i, value in enumerate(values):
-        if value.data == '(':
+        if value.data == ')':
             values[i] = nodes[i]
-
+    print(len(ops), len(values))
     for op in operations:
         while op in ops:
             oi = ops.index(op)
-            if op in '*+?':
-                result = makeNode(values[oi], values[oi+1], op)
+            if op in '|.':
+                result = makeNode(op, values[oi], values[oi+1])
                 del values[oi:oi+2]
             else:
-                result = makeNode(values[oi], op)
+                result = makeNode(op, values[oi])
                 del values[oi]
             del ops[oi]
                 
             values.insert(oi, result)
     return values[0]
+
+if __name__ == "__main__":
+    inp = input('Regex: ')
+    Tree = evaluate(inp)
+    print2D(Tree)
