@@ -8,7 +8,7 @@ def char(symbol):
     s0 = State()
     s1 = State(accepting=True)
     s0.addTransition(symbol, s1)
-    return NFA(s0, s1)
+    return NFA(start=s0, end=s1)
 
 
 # epsilon accepting nfa
@@ -42,9 +42,9 @@ def selection(n1, n2):
 
 # def Kleene nfa*
 def star(n1):
-    n1.start.addTransition(EPSILON, n1.out)
+    n1.start.addTransition(EPSILON, n1.end)
     n1.end.addTransition(EPSILON, n1.start)
-    return n1
+    return NFA(n1.start, n1.end)
 
 
 # def + nfa+

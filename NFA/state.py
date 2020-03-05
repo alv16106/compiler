@@ -22,29 +22,30 @@ class State:
         if not closure:
             closure.add(self)
             for state in self.getTransitions(EPSILON):
-                print('Epsilon transition on ', self.name, 'Going to ', state.name)
                 closure.add(state)
                 closure.update(state.getEpsilonClosure())
         
         return self.epsilonClosure
 
-    def matches(self, string, visited = set()):
+    def matches(self, string, visited = []):
         if self in visited:
             return False
-        visited.add(self)
+        visited.append(self)
 
         epsilons = self.getEpsilonClosure()
         if not string:
-            if epsilons:
+            if self.accepting:
+                return True
+            if len(epsilons) > 1:
                 m = reduce((lambda x, y: x or y), [ep.matches('', visited) for ep in epsilons])
                 return m
-            return self.accepting
+            return False
 
         next_states = self.getTransitions(string[0])
         in_epsilon = reduce((lambda x, y: x or y), [ep.matches(string, visited) for ep in epsilons])
         if not next_states:
             return in_epsilon
-        matches = reduce((lambda x, y: x or y), [s.matches(string[1:]) for s in next_states])
+        matches = reduce((lambda x, y: x or y), [s.matches(string[1:], []) for s in next_states])
         return matches or in_epsilon
     
     def __str__(self):
@@ -52,15 +53,11 @@ class State:
 
 if __name__ == "__main__":
     a = State('1', False)
-    b = State('2', False)
-    c = State('3', False)
-    d = State('4', True)
+    b = State('2', True)
     a.addTransition('a', b)
-    b.addTransition('a', c)
-    c.addTransition(EPSILON, d)
-    print(a.matches('aaa'))
+    print(a.getTransitions('a').copy().pop().accepting)
 
+    print('Matching1', a.matches('a', []))
+    print(a.getTransitions('a').copy().pop().accepting)
 
-    
-
-
+    print('Matching2', a.matches('a', []))

@@ -33,9 +33,11 @@ def evaluate(s):
         s = s.replace('('+ sub + ')', ')')
     ops, values = tokenize(s)
 
+    c = 0
     for i, value in enumerate(values):
         if value.data == ')':
-            values[i] = nodes[i]
+            values[i] = nodes[c]
+            c += 1
     print(len(ops), len(values))
     for op in operations:
         while op in ops:

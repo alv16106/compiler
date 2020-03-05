@@ -15,8 +15,8 @@ def print2DUtil(root, space) :
     # Print current node after space  
     # count  
     print()  
-    for i in range(COUNT[0], space): 
-        print(end = " ")  
+    for _ in range(COUNT[0], space): 
+        print(end = " ")
     print(root.data)  
   
     # Process left child  

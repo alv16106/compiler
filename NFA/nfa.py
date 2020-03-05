@@ -4,4 +4,7 @@ class NFA:
         self.end = end
     
     def match(self, string):
-        return self.start.matches(string)
+        return self.start.matches(string, [])
+    
+    def __str__(self):
+        return 'NFA con end: ' + str(5)
