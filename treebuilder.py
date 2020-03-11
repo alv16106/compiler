@@ -26,16 +26,21 @@ def tokenize(s):
 def evaluate(s):
     nodes = []
     while '(' in s:
-        sub = s[s.find('(')+1:s.rfind(')')]
+        sub = s[s.find('(')+1:s.find(')')]
+        while sub.count('(') != sub.count(')'): 
+            closing = s.find(')') 
+            sub = s[s.find('(')+1:s.find(')',closing+1)]
+        print(sub)
         temp_value = evaluate(sub)
         nodes.append(temp_value)
         print(temp_value)
-        s = s.replace('('+ sub + ')', ')')
+        s = s.replace('('+ sub + ')', '~')
+        print('After ', s)
     ops, values = tokenize(s)
 
     c = 0
     for i, value in enumerate(values):
-        if value.data == ')':
+        if value.data == '~':
             values[i] = nodes[c]
             c += 1
     print(len(ops), len(values))

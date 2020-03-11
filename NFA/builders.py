@@ -1,6 +1,6 @@
-from constants import *
-from state import State
-from nfa import NFA
+from .constants import *
+from .state import State
+from .nfa import NFA
 
 
 # single symbol accepting nfa
