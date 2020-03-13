@@ -49,7 +49,7 @@ class State:
         return matches or in_epsilon
     
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 if __name__ == "__main__":
     a = State('1', False)

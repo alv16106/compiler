@@ -2,6 +2,7 @@ from NFA.constants import operations
 from NFA.builders import *
 from treebuilder import evaluate
 from utils import print2D
+from fromNFA import getTransitionTable
 
 def create(automatas, operation):
     print(automatas)
@@ -32,11 +33,11 @@ def traverse(tree):
     if not tree:
         return
 
-    l = traverse(tree.left)
     r = traverse(tree.right)
+    l = traverse(tree.left)
 
-    machines.append(l) if l else None
     machines.append(r) if r else None
+    machines.append(l) if l else None
 
     if tree.data in operations:
         result = create(machines, tree.data)
@@ -47,10 +48,15 @@ def traverse(tree):
 
 if __name__ == "__main__":
     inp = input('Regex: ')
+    symbols = set(inp) - set(operations) - set(EPSILON)
     Tree = evaluate(inp)
     print2D(Tree)
     nfa = traverse(Tree)
-    print(nfa.start.transitions)
+    t = getTransitionTable(nfa, symbols)
+    for i in t:
+        print(i)
+        for a in t[i].transitions:
+            print(a, 'to: ', t[i].transitions[a].pop())
     while 1:
         match = input('String: ')
         print(nfa.match(match))

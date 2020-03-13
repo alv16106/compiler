@@ -26,11 +26,16 @@ def tokenize(s):
 def evaluate(s):
     nodes = []
     while '(' in s:
+        print('Entra', s)
         sub = s[s.find('(')+1:s.find(')')]
-        while sub.count('(') != sub.count(')'): 
-            closing = s.find(')') 
-            sub = s[s.find('(')+1:s.find(')',closing+1)]
-        print(sub)
+        while sub.count('(') != sub.count(')'):
+            dif = abs(sub.count('(') - sub.count(')'))
+            if sub.count('(') < sub.count(')'):
+                closing = s.replace(')', 'X', dif).find(')')
+                sub = s[s.find('(')+1:s.find(')',closing+1)]
+            else:
+                closing = s.replace(')', 'X', dif).find(')') 
+                sub = s[s.find('(') + 1:s.find(')', closing)]
         temp_value = evaluate(sub)
         nodes.append(temp_value)
         print(temp_value)
