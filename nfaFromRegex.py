@@ -1,7 +1,7 @@
 from NFA.constants import operations
 from NFA.builders import *
 from treebuilder import evaluate
-from utils import print2D
+from utils import print2D, graph
 from fromNFA import getTransitionTable
 
 def create(automatas, operation):
@@ -53,10 +53,7 @@ if __name__ == "__main__":
     print2D(Tree)
     nfa = traverse(Tree)
     t = getTransitionTable(nfa, symbols)
-    for i in t:
-        print(i)
-        for a in t[i].transitions:
-            print(a, 'to: ', t[i].transitions[a].pop())
+    graph(t)
     while 1:
         match = input('String: ')
-        print(nfa.match(match))
+        print(t[0].match(match))

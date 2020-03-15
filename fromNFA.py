@@ -1,14 +1,16 @@
 from functools import reduce
 from NFA.state import State
 from NFA.builders import char, concat, star
+from utils import graph
 
 def getTransitionTable(nfa, vocab):
     current = 0
     Dstates = []
     s0 = nfa.start.getEpsilonClosure()
+    isAccepting = reduce(lambda x, y: x or y.accepting, s0, False)
     Dstates.append(s0)
     visited = {}
-    visited[current] = State(name=current, accepting=False)
+    visited[current] = State(name=current, accepting=isAccepting)
     for index, T in enumerate(Dstates):
         for symbol in vocab:
             transitions = set()
@@ -19,7 +21,8 @@ def getTransitionTable(nfa, vocab):
                 continue
             if closure not in Dstates:
                 current += 1
-                isAccepting = reduce(lambda x, y: x.accepting or y.accepting, closure)
+                isAccepting = reduce(lambda x, y: x or y.accepting, closure, False)
+                print('state', current, isAccepting)
                 visited[current] = State(name=current, accepting=isAccepting)
                 Dstates.append(closure)
                 visited[index].addTransition(symbol, visited[current])
@@ -40,3 +43,4 @@ if __name__ == "__main__":
         for a in t[i].transitions:
             print(a, 'to: ', )
             print(t[i].transitions[a])
+    graph(t)
