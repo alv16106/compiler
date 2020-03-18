@@ -48,12 +48,12 @@ def traverse(tree):
 
 if __name__ == "__main__":
     inp = input('Regex: ')
-    symbols = set(inp) - set(operations) - set(EPSILON)
-    Tree = evaluate(inp)
+    symbols = set(inp) - set(operations) - set(EPSILON) - set('()')
+    Tree, pos = evaluate(inp, 0)
     print2D(Tree)
     nfa = traverse(Tree)
     t = getTransitionTable(nfa, symbols)
     graph(t)
     while 1:
         match = input('String: ')
-        print(t[0].match(match))
+        print(t[0].matches(match, []))

@@ -1,8 +1,9 @@
 class Node:
-    def __init__(self, left=None, right=None, data=""):
+    def __init__(self, left=None, right=None, data="", pos=None):
         self.left = left
         self.right = right
         self.data = data
+        self.pos = pos
     
     def __str__(self):
         string = 'THIS: ' + self.data + '\n'
