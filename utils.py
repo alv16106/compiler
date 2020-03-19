@@ -48,6 +48,20 @@ def graph(table, name='output'):
     dot.render('test-output/' + name + '.gv', view=False)
 
 
+def graphNFA(table, accepting, name='output'):
+    dot = Digraph(name = name)
+    dot.attr(rankdir = "LR")
+    for state, transitions in table.items():
+        if state in accepting:
+            dot.node(str(state), str(state), shape = "doublecircle")
+        else:
+            dot.node(str(state), str(state))
+        for symbol, to in transitions.items():
+            for next_state in to:
+                dot.edge(str(state), str(next_state), symbol)
+    dot.render('test-output/' + name + '.gv', view=False)
+
+
 def dfaToText(dfa, vocab, name):
     output = {'ESTADOS':[], 'ACEPTACION':[], 'TRANSICIONES':[]}
     output['SIMBOLOS'] = list(vocab)
@@ -65,5 +79,15 @@ def dfaToText(dfa, vocab, name):
 
 
 
-def nfaToText(nfa, vocab):
-    pass
+def nfaToText(table, accept, vocab, name):
+    output = {'ESTADOS':[], 'TRANSICIONES':[]}
+    output['ACEPTACION'] = list(accept)
+    output['SIMBOLOS'] = list(vocab)
+    for state, transitions in table.items():
+        output['ESTADOS'].append(state)
+        for symbol, to in transitions.items():
+            temp_trans = [[state, symbol, next_state] for next_state in to]
+            output['TRANSICIONES'].extend(temp_trans)
+
+    with open('./textFiles/' + name + '.txt', 'w') as outfile:
+        json.dump(output, outfile, indent=2)
