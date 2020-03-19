@@ -2,7 +2,7 @@ from NFA.constants import operations
 from NFA.builders import *
 from treebuilder import evaluate
 from utils import print2D, graph
-from fromNFA import getTransitionTable
+from dfaFromNFA import getTransitionTable
 
 def create(automatas, operation):
     print(automatas)
