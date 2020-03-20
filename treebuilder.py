@@ -43,7 +43,7 @@ def evaluate(s, pos):
         temp_value, pos = evaluate(sub, pos)
         nodes.append(temp_value)
         print(temp_value)
-        s = s.replace('('+ sub + ')', '~')
+        s = s.replace('('+ sub + ')', '~', 1)
         print('After ', s)
     ops, values, pos = tokenize(s, pos)
 

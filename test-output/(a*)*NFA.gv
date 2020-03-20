@@ -1,8 +1,0 @@
-digraph "(a*)*NFA" {
-	rankdir=LR
-	1 [label=1]
-	1 -> 2 [label=a]
-	1 -> 2 [label="ε"]
-	2 [label=2 shape=doublecircle]
-	2 -> 1 [label="ε"]
-}

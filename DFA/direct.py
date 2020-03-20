@@ -60,7 +60,7 @@ def followPos(root, fpos={}, symbols={}):
     if not root:
         return
 
-    if root.data not in operations:
+    if (root.data not in operations) and (root.data != EPSILON):
         symbols[root.data].add(root.pos)
     
     followPos(root.right, fpos, symbols)
@@ -73,33 +73,3 @@ def followPos(root, fpos={}, symbols={}):
         for p in lastPos(root):
             fpos[p].update(firstPos(root))
     return fpos, symbols
-
-def build(root, vocab):
-    symbolpos = {}
-    for symbol in vocab:
-        symbolpos[symbol] = set()
-    fpos, symbolpos = followPos(root, {}, symbolpos)
-    current = 0
-    Dstates = []
-    s0 = firstPos(root)
-    isAccepting = symbolpos['#'] in s0
-    Dstates.append(s0)
-    visited = {}
-    visited[current] = State(name=current, accepting=isAccepting)
-    for index, T in enumerate(Dstates):
-        for symbol in vocab:
-            new = set()
-            s = T.intersection(symbolpos[symbol])
-            for a in s:
-                new.update(fpos[a])
-            if new not in Dstates:
-                current += 1
-                isAccepting = symbolpos['#'] in new
-                print('state', current, isAccepting)
-                visited[current] = State(name=current, accepting=isAccepting)
-                Dstates.append(new)
-                visited[index].addTransition(symbol, visited[current])
-            else:
-                transition = Dstates.index(new)
-                visited[index].addTransition(symbol, visited[transition])
-    return visited
