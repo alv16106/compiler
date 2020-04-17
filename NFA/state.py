@@ -2,12 +2,13 @@ from .constants import *
 from functools import reduce 
 
 class State:
-    def __init__(self, name='', accepting=False):
+    def __init__(self, name='', accepting=False, pertenency=None):
         self.name = name
         self.accepting = accepting
         # object key = symbol, value = set of states it leads to
         self.transitions = {}
         self.epsilonClosure = set()
+        self.pertenency = pertenency
 
     def addTransition(self, symbol, state):
         self.getTransitions(symbol).add(state)
@@ -49,7 +50,9 @@ class State:
         return matches or in_epsilon
     
     def __str__(self):
-        return str(self.name)
+        string = 'State: ' + str(self.name) + '\n'
+        string = string + ("Serving nfa: " + self.pertenency) if self.pertenency else ""
+        return string
 
 if __name__ == "__main__":
     a = State('1', False)

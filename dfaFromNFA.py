@@ -1,6 +1,6 @@
 from functools import reduce
 from NFA.state import State
-from NFA.builders import char, concat, star
+from NFA.builders import char, concat, star, multipleSelection
 from utils import graph
 
 def getTransitionTable(nfa, vocab):
@@ -34,10 +34,10 @@ def getTransitionTable(nfa, vocab):
 if __name__ == "__main__":
     a = char('a')
     b = char('b')
-    c = concat(a, b)
-    d = star(c)
+    c = char('c')
+    d = multipleSelection([a, b, c])
     print(d.start.getEpsilonClosure())
-    t = getTransitionTable(d, ['a', 'b'])
+    t = getTransitionTable(d, ['a', 'b', 'c'])
     for i in t:
         print('From node:', i)
         for a in t[i].transitions:

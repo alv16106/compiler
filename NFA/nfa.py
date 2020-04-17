@@ -1,9 +1,10 @@
 class NFA:
-    def __init__(self, start, end, marked=False):
+    def __init__(self, start, end, marked=False, name=None):
         self.start = start
         self.end = end
         self.marked = marked
         self.table = {}
+        self.name = name
     
     def match(self, string):
         return self.start.matches(string, [])

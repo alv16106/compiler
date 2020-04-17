@@ -40,6 +40,16 @@ def selection(n1, n2):
     return NFA(new_in, new_out)
 
 
+def multipleSelection(machines):
+    new_in = State()
+
+    for n in machines:
+        new_in.addTransition(EPSILON, n.start)
+        n.end.pertenency = n.name
+
+    return NFA(new_in, n.end)
+
+
 # def Kleene nfa*
 def star(n1):
     n1.start.addTransition(EPSILON, n1.end)
