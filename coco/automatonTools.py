@@ -5,8 +5,7 @@ from NFA.state import State
 
 
 class ScannerTable:
-    def __init__(self, name, vocab = []):
-        self.name = name
+    def __init__(self, vocab = []):
         self.table = None
         self.current = None
         self.vocab = vocab
@@ -15,6 +14,9 @@ class ScannerTable:
         nfa = multipleSelection(automatons)
         self.tableFromNFA(nfa)
 
+    def reset(self):
+        self.current = self.table[0]
+
     def move(self, s):
         n = self.current.getTransitions(s)
         if n:
@@ -22,6 +24,14 @@ class ScannerTable:
             return self.current
         
         return False
+    
+    def canMove(self, s):
+        n = self.current.getTransitions(s)
+        if n:
+            return True
+        
+        return False
+
     
     def tableFromNFA(self, nfa):
         current = 0
@@ -64,7 +74,7 @@ class ScannerTable:
         self.table = visited
 
 if __name__ == "__main__":
-    scanner = ScannerTable('test', ['a','b','c'])
+    scanner = ScannerTable(['a','b','c'])
     a = char('a')
     a.name = 'a'
     b = char('b')
