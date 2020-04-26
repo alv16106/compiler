@@ -44,6 +44,7 @@ class Scanner:
                             self.scanTable.reset()
                             self.tokens.append(token)
                             return token
+                        print('Puede haber mas')
                         accepted.append((n.pertenency, self.buf[start:self.pos], self.pos))
                 else:
                     # if we already had an acceptance state before, rollback
@@ -56,8 +57,9 @@ class Scanner:
                     self.errors.append('Error en pos: %d' % self.pos)
 
             else:
-                return 'EOF'
+                return {'t':'EOF'}
 
     def peek(self):
-        return self.buf[self.pos + 1]                
+        if self.pos + 1 < self.bufLen:
+            return self.buf[self.pos + 1]                
 
