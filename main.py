@@ -22,7 +22,7 @@ if __name__ == "__main__":
         follow[p+1] = set()
 
     nfa = traverse(Tree)
-    nfa_table, accepting = nfa.transition_table()
+    nfa_table, accepting, _s = nfa.transition_table()
 
     dfaFromNFA = getTransitionTable(nfa, symbols)
     dfaFromRegex = build(DFATree, symbols.union(set('#')), follow)

@@ -25,6 +25,15 @@ class ScannerTable:
         
         return False
     
+    def setMove(self, s):
+        for trans in self.current.transitions:
+            if s in trans:
+                n = self.current.getTransitions(trans)
+                self.current = next(iter(n))
+                return self.current
+        
+        return False
+    
     def canMove(self, s):
         n = self.current.getTransitions(s)
         if n:
@@ -32,6 +41,12 @@ class ScannerTable:
         
         return False
 
+    def setCanMove(self, s):
+        for trans in self.current.transitions:
+            if s in trans:
+                return True
+        
+        return False
     
     def tableFromNFA(self, nfa):
         current = 0

@@ -16,12 +16,16 @@ class Scanner:
         self.bufLen = len(s)
         self.pos = 0
         self.lines = s.splitlines()
+        self.line = 0
         self.tokens = []
         self.scanTable = table
         self.errors = []
+        self.ignore = set([chr(9), chr(10), chr(13), " "])
 
 
     def get_token(self):
+        while self.buf[self.pos] in self.ignore:
+            self.pos += 1
         accepted = []
         start = self.pos
         while True:

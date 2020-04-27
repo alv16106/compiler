@@ -39,7 +39,7 @@ class NFA:
         
         visit(self.start)
 
-        return self.table, accepting
+        return self.table, accepting, symbols
             
 
     def __str__(self):

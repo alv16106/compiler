@@ -26,5 +26,17 @@ def get_string():
     inside = star(char(LOD))
     return concat(quote, concat(inside, quote2))
 
-# char   = '\'' anyButApostrophe '\''.
 
+# char   = '\'' anyButApostrophe '\''.
+def get_char():
+    quote = char("'")
+    quote2 = char("'")
+    inside = char(LOD)
+    return concat(quote, concat(inside, quote2))
+
+
+# for keywords
+def get_keyword(s):
+    machine = char(s[0])
+    for a in s[1:]:
+        machine = concat(machine, char(a))
