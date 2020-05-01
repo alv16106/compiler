@@ -11,7 +11,7 @@ class Token:
         return 'Token of type %s with value %s in position %s' % values
 
 class Scanner:
-    def __init__(self, s, table):
+    def __init__(self, s, table, EOF):
         self.buf = s
         self.bufLen = len(s)
         self.pos = 0
@@ -21,9 +21,13 @@ class Scanner:
         self.scanTable = table
         self.errors = []
         self.ignore = set([chr(9), chr(10), chr(13), " "])
+        self.EOF = EOF
 
 
     def get_token(self):
+        if self.pos + 1 >= self.bufLen:
+            t = (self.EOF, "EOF", self.bufLen)
+            return Token(*t)
         while self.buf[self.pos] in self.ignore:
             self.pos += 1
         accepted = []
@@ -42,9 +46,7 @@ class Scanner:
                     if n.accepting:
                         t = (n.pertenency, self.buf[start:self.pos], self.pos)
                         # we found a token, add to memory and search for more
-                        print(self.peek())
                         if not self.scanTable.setCanMove(self.peek()):
-                            print('Found token from %d to %d' % (start, self.pos))
                             token = Token(*t)
                             self.scanTable.reset()
                             self.tokens.append(token)
@@ -66,6 +68,6 @@ class Scanner:
                 return {'t':'EOF'}
 
     def peek(self):
-        if self.pos + 1 < self.bufLen:
-            return self.buf[self.pos + 1]                
+        if self.pos < self.bufLen:
+            return self.buf[self.pos]                
 

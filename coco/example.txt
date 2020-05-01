@@ -1,4 +1,4 @@
-COMPILER Ejemplo.
+COMPILER Ejemplo
 CHARACTERS
 letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
 digit = "0123456789".
@@ -7,6 +7,6 @@ KEYWORDS
 if="if".
 while="while".
 TOKENS
-id= letter{letter}
+id= letter{letter}.
 number = digit{digit}.
 hexnumber = hexdigit{hexdigit}"(H)".

@@ -1,9 +1,11 @@
-from string import ascii_letters, digits
+from string import ascii_letters, digits, printable
 from NFA.builders import char, concat, star, selection, question
 
 LETTER = set(ascii_letters)
 DIGIT = set(digits)
 LOD = LETTER.union(DIGIT)
+ANY = set(printable) - set("\n\r")
+ANYBUTQUOTE = ANY.difference(set('"'))
 
 # ident  = letter {letter | digit}.
 def get_ident():
@@ -23,7 +25,7 @@ def get_number():
 def get_string():
     quote = char('"')
     quote2 = char('"')
-    inside = star(char(LOD))
+    inside = star(char(ANYBUTQUOTE))
     return concat(quote, concat(inside, quote2))
 
 

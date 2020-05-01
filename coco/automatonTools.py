@@ -26,9 +26,15 @@ class ScannerTable:
         return False
     
     def setMove(self, s):
+        # prioritize specific moves rather than set moves
+        n = self.current.getTransitions(s)
+        if n:
+            self.current = next(iter(n))
+            return self.current
+
+        # if there are no specific moves, try for sets
         for trans in self.current.transitions:
             if s in trans:
-                print('moving because of transition in', trans)
                 n = self.current.getTransitions(trans)
                 self.current = next(iter(n))
                 return self.current

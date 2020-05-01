@@ -24,8 +24,12 @@ if __name__ == "__main__":
     table = ScannerTable(vocab=vocab)
     table.build(machines.values())
 
-    scanner = Scanner(buffer, table)
+    scanner = Scanner(buffer, table, Coco.EOF)
 
-    while 1:
-        t = scanner.get_token()
-        print(t)
+    parser = CocoParser(scanner)
+
+    name, a, b, c = parser.parse()
+    print(name)
+    print(a)
+    print(b)
+    print(c)

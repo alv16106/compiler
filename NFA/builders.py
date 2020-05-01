@@ -39,6 +39,19 @@ def selection(n1, n2):
 
     return NFA(new_in, new_out)
 
+def multior(machines):
+    new_in = State()
+    new_out = State()
+
+    for n in machines:
+        new_in.addTransition(EPSILON, n.start)
+        n.end.accepting = False
+        n.end.addTransition(EPSILON, new_out)
+
+    new_out.accepting = True
+
+    return NFA(new_in, new_out)
+
 
 def multipleSelection(machines):
     new_in = State()

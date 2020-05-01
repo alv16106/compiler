@@ -16,10 +16,13 @@ class Coco(enum.Enum):
     OptionEnd = 11
     IterationStart = 12
     IterationEnd = 13
-    CHARACTERS = 14
-    KEYWORDS = 15
-    TOKENS = 16
-    COMPILER = 17
+    Plus = 14
+    Minus = 15
+    CHARACTERS = 16
+    KEYWORDS = 17
+    TOKENS = 18
+    COMPILER = 19
+    EOF = None
 
 
 machines = {
@@ -36,6 +39,8 @@ machines = {
     Coco.OptionEnd: char("]"),
     Coco.IterationStart: char("{"),
     Coco.IterationEnd: char("}"),
+    Coco.Plus: char("+"),
+    Coco.Minus: char("-"),
     Coco.CHARACTERS: get_keyword("CHARACTERS"),
     Coco.KEYWORDS: get_keyword("KEYWORDS"),
     Coco.TOKENS: get_keyword("TOKENS"),
@@ -55,6 +60,7 @@ class CocoParser:
     
 
     def move(self):
+        print("moving to", self.la)
         self.token = self.la
         self.la = self.scanner.get_token()
     
@@ -98,11 +104,11 @@ class CocoParser:
         #necesitamos un =
         self.expect(Coco.Equal)
 
-        self.sim_set()
+        s = self.sim_set()
         
         # hay mas?
-        while self.la.t == "+" or self.la.t == "-":
-            if self.la.t == "+":
+        while self.la.t == Coco.Plus or self.la.t == Coco.Minus:
+            if self.la.t == Coco.Plus:
                 self.move()
                 s2 = self.sim_set()
                 s.update(s2)
@@ -127,8 +133,11 @@ class CocoParser:
         # necesitamos que lo proximo sea un string
         self.expect(Coco.String)
 
-        self.keywords[name] = self.token.val
-    
+        self.keywords[name] = self.token.val[1:-1]
+
+        self.expect(Coco.Finish)
+
+
     def get_token(self):
         self.expect(Coco.Ident)
         name = self.token.val
@@ -139,6 +148,13 @@ class CocoParser:
         
         # necesitamos un =
         self.expect(Coco.Equal)
+
+        t = self.get_token_part()
+        self.tokens[name] = t
+
+        self.expect(Coco.Finish)
+    
+    def get_token_part(self):
         
         t = self.get_term()
 
@@ -151,7 +167,7 @@ class CocoParser:
     def get_term(self):
         terminators = [Coco.GroupEnd, Coco.IterationEnd, Coco.OptionEnd, Coco.Or]
         t = self.get_factor()
-        while self.la.t != Coco.Finish and self.token.t not in terminators:
+        while self.la.t != Coco.Finish and self.la.t not in terminators:
             t2 = self.get_factor()
             t = concat(t, t2)
         return t
@@ -186,20 +202,20 @@ class CocoParser:
         # parentesis start
         elif self.la.t == Coco.GroupStart:
             self.move()
-            machine = self.get_token()
+            machine = self.get_token_part()
             self.expect(Coco.GroupEnd)
             
         # repeticion start
         elif self.la.t == Coco.IterationStart:
             self.move()
-            m = self.get_token()
+            m = self.get_token_part()
             machine = star(m)
             self.expect(Coco.IterationEnd)
 
         # opcion start
         elif self.la.t == Coco.OptionStart:
             self.move()
-            m = self.get_token()
+            m = self.get_token_part()
             machine = question(m)
             self.expect(Coco.IterationEnd)
 
@@ -211,7 +227,7 @@ class CocoParser:
 
 
     def parse(self):
-        self.la = Token(None, None, None)
+        self.la = Token(Coco.CHARACTERS, None, None)
         self.move()
         self.expect(Coco.COMPILER)
         self.expect(Coco.Ident)
@@ -231,4 +247,5 @@ class CocoParser:
                 self.move()
                 while self.la.t == Coco.Ident:
                     self.get_token()
-            return name, self.keywords, self.characters, self.tokens
+                break
+        return name, self.keywords, self.characters, self.tokens
