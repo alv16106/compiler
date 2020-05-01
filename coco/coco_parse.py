@@ -64,7 +64,7 @@ class CocoParser:
         if self.la.t == x:
             self.move()
         else:
-            print("ERRORRRRRRRR")
+            print("Error, expected", x)
 
 
     def sim_set(self):
