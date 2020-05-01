@@ -3,7 +3,7 @@ from NFA.builders import char, concat, star, selection, question
 
 LETTER = set(ascii_letters)
 DIGIT = set(digits)
-LOD = LETTER.update(DIGIT)
+LOD = LETTER.union(DIGIT)
 
 # ident  = letter {letter | digit}.
 def get_ident():

@@ -32,7 +32,7 @@ class Scanner:
 
             if self.pos < self.bufLen:
                 c = self.buf[self.pos]
-                n = self.scanTable.move(c)
+                n = self.scanTable.setMove(c)
                 # Move to next character        
                 self.pos += 1
 
@@ -42,13 +42,14 @@ class Scanner:
                     if n.accepting:
                         t = (n.pertenency, self.buf[start:self.pos], self.pos)
                         # we found a token, add to memory and search for more
-                        if not self.scanTable.canMove(self.peek()):
+                        print(self.peek())
+                        if not self.scanTable.setCanMove(self.peek()):
                             print('Found token from %d to %d' % (start, self.pos))
                             token = Token(*t)
                             self.scanTable.reset()
                             self.tokens.append(token)
                             return token
-                        print('Puede haber mas')
+                        # print('Puede haber mas')
                         accepted.append((n.pertenency, self.buf[start:self.pos], self.pos))
                 else:
                     # if we already had an acceptance state before, rollback
@@ -59,6 +60,7 @@ class Scanner:
                         self.tokens.append(token)
                         return token
                     self.errors.append('Error en pos: %d' % self.pos)
+                    print('error no mach nada')
 
             else:
                 return {'t':'EOF'}

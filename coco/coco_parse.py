@@ -2,29 +2,7 @@ import enum
 from coco.common import get_keyword, get_ident, get_char, get_number, char, get_string, concat, selection, star, question
 from coco.scanner import Token
 
-
-""" class Coco(enum.Enum):
-    EOF = 0
-    Ident = get_ident
-    Number = get_number
-    Char = get_char
-    String = get_string
-    Equal = lambda: char("=")
-    Or = lambda: char("|")
-    Finish = lambda: char(".")
-    GroupStart = lambda: char("(")
-    GroupEnd = lambda: char(")")
-    OptionStart = lambda: char("[") 
-    OptionEnd = lambda: char("]")
-    IterationStart = lambda: char("{")
-    IterationEnd = lambda: char("}")
-    CHARACTERS = lambda: get_keyword("CHARACTERS")
-    KEYWORDS = lambda: get_keyword("KEYWORDS")
-    TOKENS = lambda: get_keyword("TOKENS")
-    COMPILER = lambda: get_keyword("COMPILER") """
-
 class Coco(enum.Enum):
-    EOF = 0
     Ident = 1
     Number = 2
     Char = 3
@@ -44,10 +22,30 @@ class Coco(enum.Enum):
     COMPILER = 17
 
 
+machines = {
+    Coco.Ident: get_ident(),
+    Coco.Number: get_number(),
+    Coco.Char: get_char(),
+    Coco.String: get_string(),
+    Coco.Equal: char("="),
+    Coco.Or: char("|"),
+    Coco.Finish: char("."),
+    Coco.GroupStart: char("("),
+    Coco.GroupEnd: char(")"),
+    Coco.OptionStart: char("["), 
+    Coco.OptionEnd: char("]"),
+    Coco.IterationStart: char("{"),
+    Coco.IterationEnd: char("}"),
+    Coco.CHARACTERS: get_keyword("CHARACTERS"),
+    Coco.KEYWORDS: get_keyword("KEYWORDS"),
+    Coco.TOKENS: get_keyword("TOKENS"),
+    Coco.COMPILER: get_keyword("COMPILER"),
+}
+
+
 class CocoParser:
-    def __init__(self, scanner, headers):
+    def __init__(self, scanner):
         self.scanner = scanner
-        self.headers = headers
         self.error = 0
         self.token = None
         self.la = None
@@ -213,7 +211,6 @@ class CocoParser:
 
 
     def parse(self):
-        mode = 0
         self.la = Token(None, None, None)
         self.move()
         self.expect(Coco.COMPILER)
@@ -222,18 +219,15 @@ class CocoParser:
         name = self.token.val
 
         while 1:
-            if self.la.t in self.headers:
-                mode = self.la.value
-                continue
-            if mode == "CHARACTERS":
+            if self.la.t == Coco.CHARACTERS:
                 self.move()
                 while self.la.t == Coco.Ident:
                     self.get_set()
-            elif mode == "KEYWORDS":
+            elif self.la.t == Coco.KEYWORDS:
                 self.move()
                 while self.la.t == Coco.Ident:
                     self.get_keyword()
-            elif mode == "TOKENS":
+            elif self.la.t == Coco.TOKENS:
                 self.move()
                 while self.la.t == Coco.Ident:
                     self.get_token()

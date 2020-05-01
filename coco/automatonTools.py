@@ -28,6 +28,7 @@ class ScannerTable:
     def setMove(self, s):
         for trans in self.current.transitions:
             if s in trans:
+                print('moving because of transition in', trans)
                 n = self.current.getTransitions(trans)
                 self.current = next(iter(n))
                 return self.current
