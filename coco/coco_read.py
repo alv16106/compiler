@@ -1,21 +1,6 @@
 import enum
-from common import get_char, get_ident, get_number, get_keyword
-from scanner import Token, Scanner, ScannerTable
-
-class Coco(enum.Enum):
-    EOF = 0
-    Ident = get_ident
-    Number = get_number
-    Char = get_char
-    Equal = "="
-    Finish = "."
-    GroupStart = "("
-    GroupEnd = ")"
-    OptionStart = "[" 
-    OptionEnd = "]"
-    IterationStart = "{"
-    IterationEnd = "}"
-    StringDelimiter = '"'
+from coco.common import get_char, get_ident, get_number, get_keyword
+from coco.scanner import Token, Scanner, ScannerTable
 
 
 def get_file(filename):

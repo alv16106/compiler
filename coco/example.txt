@@ -1,8 +1,5 @@
 COMPILER Ejemplo
-(.
-/*--------------Scanner Specification----------*/
-.)
-CHARACTERS 
+CHARACTERS
 letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
 digit = "0123456789".
 hexdigit = digit+"ABCDEF".

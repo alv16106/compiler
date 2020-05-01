@@ -1,9 +1,9 @@
 from string import ascii_letters, digits
-from ..NFA.builders import char, concat, star, selection
+from NFA.builders import char, concat, star, selection, question
 
 LETTER = set(ascii_letters)
 DIGIT = set(digits)
-LOD = LETTER + DIGIT
+LOD = LETTER.update(DIGIT)
 
 # ident  = letter {letter | digit}.
 def get_ident():
@@ -40,3 +40,4 @@ def get_keyword(s):
     machine = char(s[0])
     for a in s[1:]:
         machine = concat(machine, char(a))
+    return machine

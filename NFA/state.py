@@ -1,4 +1,4 @@
-from .constants import *
+from constants import *
 from functools import reduce 
 
 class State:
@@ -11,9 +11,13 @@ class State:
         self.pertenency = pertenency
 
     def addTransition(self, symbol, state):
+        if type(symbol) is set:
+            symbol = frozenset(symbol)
         self.getTransitions(symbol).add(state)
     
     def getTransitions(self, symbol):
+        if type(symbol) is set:
+            symbol = frozenset(symbol)
         if symbol not in self.transitions:
             self.transitions[symbol] = set()
         return self.transitions[symbol]

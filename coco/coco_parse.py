@@ -1,11 +1,9 @@
 import enum
-from tree import Node
-from utils import print2D
-from common import *
-from scanner import Token
+from coco.common import get_keyword, get_ident, get_char, get_number, char, get_string, concat, selection, star, question
+from coco.scanner import Token
 
 
-class Coco(enum.Enum):
+""" class Coco(enum.Enum):
     EOF = 0
     Ident = get_ident
     Number = get_number
@@ -20,6 +18,30 @@ class Coco(enum.Enum):
     OptionEnd = lambda: char("]")
     IterationStart = lambda: char("{")
     IterationEnd = lambda: char("}")
+    CHARACTERS = lambda: get_keyword("CHARACTERS")
+    KEYWORDS = lambda: get_keyword("KEYWORDS")
+    TOKENS = lambda: get_keyword("TOKENS")
+    COMPILER = lambda: get_keyword("COMPILER") """
+
+class Coco(enum.Enum):
+    EOF = 0
+    Ident = 1
+    Number = 2
+    Char = 3
+    String = 4
+    Equal = 5
+    Or = 6
+    Finish = 7
+    GroupStart = 8
+    GroupEnd = 9
+    OptionStart = 10
+    OptionEnd = 11
+    IterationStart = 12
+    IterationEnd = 13
+    CHARACTERS = 14
+    KEYWORDS = 15
+    TOKENS = 16
+    COMPILER = 17
 
 
 class CocoParser:
@@ -110,10 +132,6 @@ class CocoParser:
         self.keywords[name] = self.token.val
     
     def get_token(self):
-        pStack = []
-        eTree = Node()
-        pStack.append(eTree)
-        currentTree = eTree
         self.expect(Coco.Ident)
         name = self.token.val
 
@@ -123,78 +141,86 @@ class CocoParser:
         
         # necesitamos un =
         self.expect(Coco.Equal)
+        
+        t = self.get_term()
+
+        # Repetimos mientras el siguiente siga siento un Or
+        while self.la.t == Coco.Or:
+            t2 = self.get_term()
+            t = selection(t, t2)
+        return t
+
+    def get_term(self):
+        terminators = [Coco.GroupEnd, Coco.IterationEnd, Coco.OptionEnd, Coco.Or]
+        t = self.get_factor()
+        while self.la.t != Coco.Finish and self.token.t not in terminators:
+            t2 = self.get_factor()
+            t = concat(t, t2)
+        return t
+
+    
+    def get_factor(self):
+        machine = None
 
         # Que es lo proximo?
-        while self.la.t != Coco.Finish:
-            # operacion |
-            if self.la.t == Coco.Or:
-                self.move()
-                currentTree.data = "|"
-                currentTree.right = Node()
-                pStack.append(currentTree)
-                currentTree = currentTree.right
-
-            elif self.la.t == Coco.Ident:
-                self.move()
-                ID = self.token.val
-                value = ''
-                # search if its keyword or character
-                if ID in self.keywords:
-                    value = self.keywords[ID]
-                elif ID in self.characters:
-                    value = self.characters[ID]
-                else:
-                    print("No existe tal identifier")
-                
-                # modify stack
-                currentTree.data = value
-                parent = pStack.pop()
-                currentTree = parent
-            
-            # parentesis start
-            elif self.la.t == Coco.GroupStart:
-                self.move()
-                currentTree.left = Node()
-                pStack.append(currentTree)
-                currentTree = currentTree.left
-            
-            # parentesis end
-            elif self.la.t == Coco.GroupEnd:
-                self.move()
-                currentTree = pStack.pop()
-            
-            # repeticion start
-            elif self.la.t == Coco.IterationStart:
-                self.move()
-                currentTree.left = Node()
-                pStack.append(currentTree)
-                currentTree = currentTree.left
-
-            # repeticion end
-            elif self.la.t == Coco.IterationEnd:
-                self.move()
-                pass
-
-            # opcion start
-            elif self.la.t == Coco.OptionStart:
-                self.move()
-                pass
-
-            # opcion end
-            elif self.la.t == Coco.OptionEnd:
-                self.move()
-                pass
-
-            # ninguno, por lo tanto error
+        if self.la.t == Coco.Ident:
+            self.move()
+            ID = self.token.val
+            value = ''
+            # search if its keyword or character
+            if ID in self.keywords:
+                value = self.keywords[ID]
+                machine = get_keyword(value)
+            elif ID in self.characters:
+                value = self.characters[ID]
+                machine = char(value)
             else:
-                pass
+                print("No existe tal identifier")
+        
+        elif self.la.t == Coco.String:
+            self.move()
+            machine = get_keyword(self.token.val[1:-1])
+        
+        elif self.la.t == Coco.String:
+            self.move()
+            machine = char(self.token.val[1:-1])
+            
+        # parentesis start
+        elif self.la.t == Coco.GroupStart:
+            self.move()
+            machine = self.get_token()
+            self.expect(Coco.GroupEnd)
+            
+        # repeticion start
+        elif self.la.t == Coco.IterationStart:
+            self.move()
+            m = self.get_token()
+            machine = star(m)
+            self.expect(Coco.IterationEnd)
 
+        # opcion start
+        elif self.la.t == Coco.OptionStart:
+            self.move()
+            m = self.get_token()
+            machine = question(m)
+            self.expect(Coco.IterationEnd)
+
+        # ninguno, por lo tanto error
+        else:
+            print("Error en la creacion del token")
+
+        return machine
 
 
     def parse(self):
         mode = 0
         self.la = Token(None, None, None)
         self.move()
+        self.expect(Coco.COMPILER)
+        self.expect(Coco.Ident)
+
+        name = self.token.val
+
         while 1:
             if self.la.t in self.headers:
                 mode = self.la.value
@@ -211,3 +237,4 @@ class CocoParser:
                 self.move()
                 while self.la.t == Coco.Ident:
                     self.get_token()
+            return name, self.keywords, self.characters, self.tokens
