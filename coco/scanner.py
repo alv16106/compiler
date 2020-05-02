@@ -1,4 +1,3 @@
-from coco.automatonTools import ScannerTable
 
 class Token:
     def __init__(self, t, val, pos):
@@ -25,7 +24,7 @@ class Scanner:
 
 
     def get_token(self):
-        if self.pos + 1 >= self.bufLen:
+        if self.pos >= self.bufLen:
             t = (self.EOF, "EOF", self.bufLen)
             return Token(*t)
         while self.buf[self.pos] in self.ignore:
@@ -65,9 +64,11 @@ class Scanner:
                     print('error no mach nada')
 
             else:
-                return {'t':'EOF'}
+                t = (self.EOF, "EOF", self.bufLen)
+                return Token(*t)
 
     def peek(self):
         if self.pos < self.bufLen:
-            return self.buf[self.pos]                
+            return self.buf[self.pos]
+        return 'EOF'            
 

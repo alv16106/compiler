@@ -6,6 +6,7 @@ DIGIT = set(digits)
 LOD = LETTER.union(DIGIT)
 ANY = set(printable) - set("\n\r")
 ANYBUTQUOTE = ANY.difference(set('"'))
+ANYBUTSINGLEQUOTE = ANY.difference(set("'"))
 
 # ident  = letter {letter | digit}.
 def get_ident():
@@ -33,7 +34,7 @@ def get_string():
 def get_char():
     quote = char("'")
     quote2 = char("'")
-    inside = char(LOD)
+    inside = char(ANYBUTSINGLEQUOTE)
     return concat(quote, concat(inside, quote2))
 
 

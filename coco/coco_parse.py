@@ -22,6 +22,8 @@ class Coco(enum.Enum):
     KEYWORDS = 17
     TOKENS = 18
     COMPILER = 19
+    CHR = 20
+    FOLLOW = 21
     EOF = None
 
 
@@ -41,6 +43,8 @@ machines = {
     Coco.IterationEnd: char("}"),
     Coco.Plus: char("+"),
     Coco.Minus: char("-"),
+    Coco.CHR: get_keyword("CHR("),
+    Coco.FOLLOW: get_keyword(".."),
     Coco.CHARACTERS: get_keyword("CHARACTERS"),
     Coco.KEYWORDS: get_keyword("KEYWORDS"),
     Coco.TOKENS: get_keyword("TOKENS"),
@@ -84,8 +88,22 @@ class CocoParser:
             self.move()
             s.update(set(self.token.val[1:-1]))
         elif self.la.t == Coco.Char:
+            print('enter char')
             self.move()
-            s.add(self.token.val[1:-1])
+            v1 = self.token.val[1:-1]
+            s.add(v1)
+            if self.la.t == Coco.FOLLOW:
+                self.move()
+                self.expect(Coco.Char)
+                v2 = self.token.val[1:-1]
+                for i in range( ord(v1), ord(v2) + 1 ):
+                    s.add(chr(i))
+
+        elif self.la.t == Coco.CHR:
+            self.move()
+            self.expect(Coco.Number)
+            s.update(chr(int(self.token.val)))
+            self.expect(Coco.GroupEnd)
         else:
             print("CHARACTER SET mal hecho")
         
@@ -160,6 +178,7 @@ class CocoParser:
 
         # Repetimos mientras el siguiente siga siento un Or
         while self.la.t == Coco.Or:
+            self.move()
             t2 = self.get_term()
             t = selection(t, t2)
         return t
@@ -175,7 +194,7 @@ class CocoParser:
     
     def get_factor(self):
         machine = None
-
+        print("EN GET FACTOR", self.la.t)
         # Que es lo proximo?
         if self.la.t == Coco.Ident:
             self.move()

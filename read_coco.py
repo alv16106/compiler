@@ -1,7 +1,8 @@
 import enum
 from coco.coco_parse import Coco, machines, CocoParser
-from coco.common import get_ident
-from coco.scanner import Token, Scanner, ScannerTable
+from coco.common import get_ident, get_keyword
+from coco.automatonTools import ScannerTable
+from coco.scanner import Token, Scanner
 
 
 def get_file(filename):
@@ -12,8 +13,7 @@ def get_file(filename):
 
 
 if __name__ == "__main__":
-    buffer = get_file('coco/example.txt')
-    headers = set()
+    buffer = get_file('tests/HexNumber.ATG')
     vocab = set()
 
     # Add all tokens to dict
@@ -28,8 +28,41 @@ if __name__ == "__main__":
 
     parser = CocoParser(scanner)
 
-    name, a, b, c = parser.parse()
+    name, k, c, t = parser.parse()
     print(name)
-    print(a)
-    print(b)
+
     print(c)
+
+    # FOR new language
+    new_machines = {}
+
+    for key in k:
+        new_machines[key] = get_keyword(k[key])
+
+
+    new_machines.update(t)
+    vocab2 = set()
+
+    Enumerator = enum.Enum(name, list(new_machines.keys()))
+
+    # Add all tokens to dict
+    for c in new_machines:
+        print(c)
+        new_machines[c].name = Enumerator[c]
+        vocab.update(new_machines[c].transition_table()[-1])
+        
+    table = ScannerTable(vocab=vocab)
+    table.build(new_machines.values())
+
+    while 1:
+        buffer = input()
+
+        scanner = Scanner(buffer, table, Coco.EOF)
+        t = scanner.get_token()
+        print(t)
+
+        while t.t != Coco.EOF:
+            t = scanner.get_token()
+            print(t)
+
+        scanner.scanTable.reset()

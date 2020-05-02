@@ -3,10 +3,12 @@ CHARACTERS
 letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
 digit = "0123456789".
 hexdigit = digit+"ABCDEF".
+char = CHR(225).
+lc = 'a' .. 'z'.
 KEYWORDS
 if="if".
 while="while".
 TOKENS
 id= letter{letter}.
-number = digit{digit}.
 hexnumber = hexdigit{hexdigit}"(H)".
+number = digit{digit}.
