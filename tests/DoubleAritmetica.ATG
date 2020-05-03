@@ -16,7 +16,7 @@ TOKENS
 
 number = digit{digit}.
 decnumber = digit{digit}"."digit{digit}.
-white = blanco{blanco}.
+white = blanco{blanco}
 
 PRODUCTIONS
 

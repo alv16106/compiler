@@ -7,7 +7,7 @@ class Token:
     
     def __str__(self):
         values = (self.t.name, self.val, self.pos)
-        return 'Token of type %s with value %s in position %s' % values
+        return 'Token of type "\033[1m%s\033[0m with value %s in position %s' % values
 
 class Scanner:
     def __init__(self, s, table, EOF):

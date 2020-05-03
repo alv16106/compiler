@@ -13,7 +13,8 @@ def get_file(filename):
 
 
 if __name__ == "__main__":
-    buffer = get_file('tests/HexNumber.ATG')
+    f = input('Name of source file: ')
+    buffer = get_file(f)
     vocab = set()
 
     # Add all tokens to dict

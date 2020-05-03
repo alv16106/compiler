@@ -24,6 +24,7 @@ class Coco(enum.Enum):
     COMPILER = 19
     CHR = 20
     FOLLOW = 21
+    PRODUCTION = 22
     EOF = None
 
 
@@ -48,6 +49,7 @@ machines = {
     Coco.CHARACTERS: get_keyword("CHARACTERS"),
     Coco.KEYWORDS: get_keyword("KEYWORDS"),
     Coco.TOKENS: get_keyword("TOKENS"),
+    Coco.PRODUCTION: get_keyword("PRODUCTIONS"),
     Coco.COMPILER: get_keyword("COMPILER"),
 }
 
