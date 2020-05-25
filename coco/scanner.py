@@ -41,9 +41,13 @@ class Scanner:
 
                 # if we can continue without error
                 if n:
+                    good = None
+                    for state in n:
+                        good = state if state.accepting else None
+
                     #see if n is accepting
-                    if n.accepting:
-                        t = (n.pertenency, self.buf[start:self.pos], self.pos)
+                    if good:
+                        t = (good.pertenency, self.buf[start:self.pos], self.pos)
                         # we found a token, add to memory and search for more
                         if not self.scanTable.setCanMove(self.peek()):
                             token = Token(*t)
@@ -51,7 +55,7 @@ class Scanner:
                             self.tokens.append(token)
                             return token
                         # print('Puede haber mas')
-                        accepted.append((n.pertenency, self.buf[start:self.pos], self.pos))
+                        accepted.append(t)
                 else:
                     # if we already had an acceptance state before, rollback
                     if accepted:
@@ -70,5 +74,10 @@ class Scanner:
     def peek(self):
         if self.pos < self.bufLen:
             return self.buf[self.pos]
-        return 'EOF'            
+        return 'EOF'
+
+    def ignoreUntil(self, string):
+        while self.buf[self.pos] != string:
+            print('ignoring', self.buf[self.pos])
+            self.pos += 1
 

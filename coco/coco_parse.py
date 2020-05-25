@@ -24,7 +24,12 @@ class Coco(enum.Enum):
     COMPILER = 19
     CHR = 20
     FOLLOW = 21
-    PRODUCTION = 22
+    PRODUCTIONS = 22
+    Less = 23
+    Greater = 24
+    Out = 25
+    lpp = 26
+    rpp = 27
     EOF = None
 
 
@@ -49,8 +54,13 @@ machines = {
     Coco.CHARACTERS: get_keyword("CHARACTERS"),
     Coco.KEYWORDS: get_keyword("KEYWORDS"),
     Coco.TOKENS: get_keyword("TOKENS"),
-    Coco.PRODUCTION: get_keyword("PRODUCTIONS"),
+    Coco.PRODUCTIONS: get_keyword("PRODUCTIONS"),
+    Coco.Out: get_keyword("out"),
+    Coco.Less: char("<"),
+    Coco.Greater: char(">"),
     Coco.COMPILER: get_keyword("COMPILER"),
+    Coco.lpp: get_keyword("(."),
+    Coco.rpp: get_keyword(".)"),
 }
 
 
@@ -63,6 +73,7 @@ class CocoParser:
         self.characters = {}
         self.keywords = {}
         self.tokens = {}
+        self.productions = {}
     
 
     def move(self):
@@ -74,7 +85,7 @@ class CocoParser:
         if self.la.t == x:
             self.move()
         else:
-            print("Error, expected", x)
+            print("Error, expected", x, "got", self.la.t)
 
 
     def sim_set(self):
@@ -247,6 +258,66 @@ class CocoParser:
         return machine
 
 
+    def get_attibutes(self):
+        self.move()
+        self.expect(Coco.Out)
+        self.expect(Coco.Ident)
+        retVal = self.token.val
+        self.expect(Coco.Greater)
+        return retVal
+    
+    def get_semText(self):
+        start = self.scanner.pos
+        self.scanner.ignoreUntil('.')
+        
+        self.move()
+
+        end = self.scanner.pos
+        self.expect(Coco.rpp)
+
+        return self.scanner.buf[start:end]
+
+
+    def get_production(self):
+        self.expect(Coco.Ident)
+        name = self.token.val
+
+        # verificamos que no sea repetido
+        if name in self.productions:
+            print("duplicado alv")
+        
+        # manejo de parametros
+        if self.la.t == Coco.Less:
+            rv = self.get_attibutes()
+            print('RETURN value:', rv)
+            
+        # necesitamos un =
+        self.expect(Coco.Equal)
+        
+        # manejo de semantica (. .)
+        if self.la.t == Coco.lpp:
+            st = self.get_semText()
+            print('Semantic action:', st)
+        
+        s = self.get_expresion()
+        
+    
+    def get_expresion(self):
+        e = self.get_pterm()
+
+        # Repetimos mientras el siguiente siga siento un Or
+        while self.la.t == Coco.Or:
+            self.move()
+            e2 = self.get_pterm()
+            # TODO: decidir que hacer con las opciones
+            
+        return e
+    
+
+    def get_pterm(self):
+        return 0
+
+
     def parse(self):
         self.la = Token(Coco.CHARACTERS, None, None)
         self.move()
@@ -261,6 +332,7 @@ class CocoParser:
                 while self.la.t == Coco.Ident:
                     self.get_set()
             elif self.la.t == Coco.KEYWORDS:
+                print('now processing keywords')
                 self.move()
                 while self.la.t == Coco.Ident:
                     self.get_keyword()
@@ -268,5 +340,10 @@ class CocoParser:
                 self.move()
                 while self.la.t == Coco.Ident:
                     self.get_token()
+            elif self.la.t == Coco.PRODUCTIONS:
+                print('now processing productions')
+                self.move()
+                while self.la.t == Coco.Ident:
+                    self.get_production()
                 break
         return name, self.keywords, self.characters, self.tokens

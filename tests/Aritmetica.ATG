@@ -21,18 +21,19 @@ number = digit{digit}.
 
 PRODUCTIONS
 
+Expression<out result> =		(.int result1,result2;.)
+	Term< ref result1>
+	{    "+"Term< ref result2>		(.result1+=result2;.)
+	   | "-"Term< ref result2>		(.result1-=result2;.)
+	}							(.result=result1;.)
+	.
+
 Expr= {Stat (";")}".".
 
 Stat = 							(.int value;.)
 	Expression< ref value>		(.System.Console.WriteLn(value.ToString());.)
 	.
 
-Expression<ref int result> =		(.int result1,result2;.)
-	Term< ref result1>
-	{    "+"Term< ref result2>		(.result1+=result2;.)
-	   | "-"Term< ref result2>		(.result1-=result2;.)
-	}							(.result=result1;.)
-	.
 
 Term<ref int result>=				(.int result1,result2;.)
 	Factor<ref result1>

@@ -15,7 +15,9 @@ class ScannerTable:
         self.tableFromNFA(nfa)
 
     def reset(self):
-        self.current = self.table[0]
+        c = set()
+        c.add(self.table[0])
+        self.current = c
 
     def move(self, s):
         n = self.current.getTransitions(s)
@@ -25,9 +27,25 @@ class ScannerTable:
         
         return False
     
+    def getTrans(self, s):
+        t = set()
+        for a in self.current:
+            for trans in a.transitions:
+                if s in trans:
+                    n = a.getTransitions(trans)
+                    t.update(n)
+        return t
+
     def setMove(self, s):
+        t = self.getTrans(s)
+
+        if t:
+            self.current = t
+            return self.current
+        
+        return False
         # prioritize specific moves rather than set moves
-        n = self.current.getTransitions(s)
+        """ n = self.current.getTransitions(s)
         if n:
             self.current = next(iter(n))
             return self.current
@@ -39,7 +57,7 @@ class ScannerTable:
                 self.current = next(iter(n))
                 return self.current
         
-        return False
+        return False """
     
     def canMove(self, s):
         n = self.current.getTransitions(s)
@@ -49,11 +67,9 @@ class ScannerTable:
         return False
 
     def setCanMove(self, s):
-        for trans in self.current.transitions:
-            if s in trans:
-                return True
+        can = self.getTrans(s)
         
-        return False
+        return True if can else False
     
     def tableFromNFA(self, nfa):
         current = 0
@@ -92,8 +108,8 @@ class ScannerTable:
                     transition = Dstates.index(closure)
                     visited[index].addTransition(symbol, visited[transition])
 
-        self.current = visited[0]
         self.table = visited
+        self.reset()
 
 if __name__ == "__main__":
     scanner = ScannerTable(['a','b','c'])
