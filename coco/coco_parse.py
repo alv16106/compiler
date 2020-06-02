@@ -30,6 +30,7 @@ class Coco(enum.Enum):
     Out = 25
     lpp = 26
     rpp = 27
+    If = 28
     EOF = None
 
 
@@ -61,6 +62,7 @@ machines = {
     Coco.COMPILER: get_keyword("COMPILER"),
     Coco.lpp: get_keyword("(."),
     Coco.rpp: get_keyword(".)"),
+    Coco.If: get_keyword('"IF"'),
 }
 
 
@@ -223,13 +225,9 @@ class CocoParser:
             else:
                 print("No existe tal identifier")
         
-        elif self.la.t == Coco.String:
+        elif self.la.t == Coco.String or self.la.t == Coco.Char:
             self.move()
             machine = get_keyword(self.token.val[1:-1])
-        
-        elif self.la.t == Coco.String:
-            self.move()
-            machine = char(self.token.val[1:-1])
             
         # parentesis start
         elif self.la.t == Coco.GroupStart:
@@ -300,6 +298,8 @@ class CocoParser:
             print('Semantic action:', st)
         
         s = self.get_expresion()
+        self.expect(Coco.Finish)
+        return s
         
     
     def get_expresion(self):
@@ -315,7 +315,86 @@ class CocoParser:
     
 
     def get_pterm(self):
-        return 0
+        resolver = None
+        if self.la.t == Coco.If:
+            resolver = self.get_resolver()
+        
+        t = self.get_pfactor()
+        while self.la.t != Coco.Finish and self.la.t != Coco.Or:
+            t = self.get_pfactor()
+
+        return t
+    
+    def get_pfactor(self):
+        factor = None
+        if self.la.t == Coco.Ident:
+            self.move()
+            name = self.token.val
+            if name in self.tokens:
+                # Es un token, lo consumimos
+                pass
+            else:
+                # Es una produccion que no conocemos, la llamamos
+                attr = None
+                if self.la.t == Coco.Less:
+                    # con que la vamos a llamar?
+                    attr = self.get_attibutes()
+                
+                if attr:
+                    # llamada con atribs
+                    pass
+                else:
+                    #llamada sin atribs
+                    pass
+                pass
+
+        elif self.la.t == Coco.String or self.la.t == Coco.Char:
+            # nueva keyword
+            self.move()
+            name = self.token.val
+            self.keywords[name] = get_keyword(name)
+            
+            # Agregamos un if para ver si la conecta con el string
+            pass
+
+        if self.la.t == Coco.GroupStart:
+            self.move()
+            # Grupo, ni idea que hacer
+            factor = self.get_expresion()
+            self.expect(Coco.GroupEnd)
+            pass
+        if self.la.t == Coco.OptionStart:
+            self.move()
+            # Se a;ade un if
+            factor = self.get_expresion()
+            self.expect(Coco.OptionEnd)
+            pass
+        if self.la.t == Coco.IterationStart:
+            self.move()
+            # se a;ade un while
+            factor = self.get_expresion()
+            self.expect(Coco.IterationEnd)
+            pass
+        elif self.la.t == Coco.lpp:
+            factor = self.get_semText()
+            # se escribe como es
+
+        return factor
+
+
+    def get_resolver(self):
+        self.expect(Coco.If)
+        # we need an opening paren
+        if self.la.t == Coco.GroupStart:
+            start = self.scanner.pos
+            self.scanner.ignoreUntil(')')
+            
+            self.move()
+
+            end = self.scanner.pos
+            self.expect(Coco.GroupEnd)
+
+        return self.scanner.buf[start:end]
 
 
     def parse(self):
