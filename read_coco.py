@@ -3,6 +3,7 @@ from coco.coco_parse import Coco, machines, CocoParser
 from coco.common import get_ident, get_keyword
 from coco.automatonTools import ScannerTable
 from coco.scanner import Token, Scanner
+from coco.Node import get_productions
 
 
 def get_file(filename):
@@ -29,7 +30,7 @@ if __name__ == "__main__":
 
     parser = CocoParser(scanner)
 
-    name, k, c, t = parser.parse()
+    name, k, c, t, p = parser.parse()
     print(name)
 
     print(c)
@@ -54,6 +55,8 @@ if __name__ == "__main__":
         
     table = ScannerTable(vocab=vocab)
     table.build(new_machines.values())
+
+    get_productions('./parsers/'+ name + '.py', p)
 
     while 1:
         buffer = input()

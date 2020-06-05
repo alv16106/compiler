@@ -32,6 +32,7 @@ class Coco(enum.Enum):
     lpp = 26
     rpp = 27
     If = 28
+    END = 29
     EOF = None
 
 
@@ -61,6 +62,7 @@ machines = {
     Coco.Less: char("<"),
     Coco.Greater: char(">"),
     Coco.COMPILER: get_keyword("COMPILER"),
+    Coco.END: get_keyword("END"),
     Coco.lpp: get_keyword("(."),
     Coco.rpp: get_keyword(".)"),
     Coco.If: get_keyword('"IF"'),
@@ -267,14 +269,20 @@ class CocoParser:
     
     def get_semText(self):
         start = self.scanner.pos
-        self.scanner.ignoreUntil('.')
+        while True:
+            self.scanner.ignoreUntil('.')
+
+            if self.scanner.buf[self.scanner.pos+1] == ')':
+                break
+            
+            self.scanner.pos += 1
         
         self.move()
 
         end = self.scanner.pos
         self.expect(Coco.rpp)
 
-        return self.scanner.buf[start:end]
+        return self.scanner.buf[start:end-2]
 
 
     def get_production(self):
@@ -308,8 +316,6 @@ class CocoParser:
         self.expect(Coco.Finish)
 
         self.productions[name] = prod
-
-        convert(prod)
         
     
     def get_expresion(self):
@@ -376,7 +382,7 @@ class CocoParser:
             # nueva keyword
             self.move()
             name = self.token.val
-            self.keywords[name] = get_keyword(name)
+            self.keywords[name] = name
 
             factor = Node('literal', name)
 
@@ -466,4 +472,4 @@ class CocoParser:
                 while self.la.t == Coco.Ident:
                     self.get_production()
                 break
-        return name, self.keywords, self.characters, self.tokens
+        return name, self.keywords, self.characters, self.tokens, self.productions

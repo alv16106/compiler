@@ -21,30 +21,30 @@ number = digit{digit}.
 
 PRODUCTIONS
 
-Expression<out result> =		(.int result1,result2;.)
-	Term< out result1>
-	{    "+"Term< out result2>		(.result1+=result2;.)
-	   | "-"Term< out result2>		(.result1-=result2;.)
-	}							(.result=result1;.)
-	.
 
 Expr= {Stat (";")}".".
 
 Stat = 							(.int value;.)
-	Expression< ref value>		(.System.Console.WriteLn(value.ToString());.)
+	Expression< out value>		(.print(value).)
 	.
 
+Expression<out result> =
+	Term< out result1>
+	{    "+"Term< out result2>		(.result1+=result2.)
+	   | "-"Term< out result2>		(.result1-=result2.)
+	}							(.result=result1.)
+	.
 
-Term<out result>=				(.int result1,result2;.)
-	Factor<ref result1>
-	{    "*"Factor<ref result2>	(.result1*=result2;.)
-	   | "/"Factor<ref result2>	(.result1/=result2;.)
-	}							(.result=result1;.)
+Term<out result>=
+	Factor<out result1>
+	{    "*"Factor<out result2>	(.result1*=result2.)
+	   | "/"Factor<out result2>	(.result1/=result2.)
+	}							(.result=result1.)
 	.
 	
-Factor<ref int result> =	(.int signo=1;.)
-	["-"(.signo = -1;.)]
-	( Number<ref result> | "("Expression< ref result>")") (.result*=signo;.).
+Factor<out result> =
+	["-"(.signo = -1.)]
+	( Number<out result> | "("Expression< out result>")") (.result*=signo.).
 	
-Number<ref int result> =  number (. result = int.Parse(lastToken.Value).).
+Number<out result> =  number (. result = int(self.t.val).).
 END Aritmetica

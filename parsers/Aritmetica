@@ -1,0 +1,56 @@
+Expr():
+    whileself.la.t == fist:
+        Stat()
+        ifself.la.t == ";":
+            self.expect(";")
+    ifself.la.t == ".":
+        self.expect(".")
+Stat():
+    value=Expression()
+    print(value)
+Expression():
+    result1=Term()
+    whileself.la.t == fist:
+        ifself.la.t == white:
+            ifself.la.t == "+":
+                self.expect("+")
+            result2=Term()
+            result1+=result2
+        ifself.la.t == white:
+            ifself.la.t == "-":
+                self.expect("-")
+            result2=Term()
+            result1-=result2
+    result=result1
+    return resultTerm():
+    result1=Factor()
+    whileself.la.t == fist:
+        ifself.la.t == white:
+            ifself.la.t == "*":
+                self.expect("*")
+            result2=Factor()
+            result1*=result2
+        ifself.la.t == white:
+            ifself.la.t == "/":
+                self.expect("/")
+            result2=Factor()
+            result1/=result2
+    result=result1
+    return resultFactor():
+    ifself.la.t == fist:
+        ifself.la.t == "-":
+            self.expect("-")
+        signo = -1
+    ifself.la.t == white:
+        result=Number()
+    ifself.la.t == white:
+        ifself.la.t == "(":
+            self.expect("(")
+        result=Expression()
+        ifself.la.t == ")":
+            self.expect(")")
+    result*=signo
+    return resultNumber():
+    self.expect(number)
+     result = int(self.t.val)
+    return result

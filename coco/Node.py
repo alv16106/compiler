@@ -33,30 +33,40 @@ class Node:
             last = last.next
         return last
 
-def convert(parent, i=2):
+def convert(parent, i=2, fd=None):
     indent = 0
     hasReturn = parent['return']
     n = parent['list']
-    print(parent['name'], "():")
+    fd.write(parent['name'] + "():\n")
     indent += i
     while n:
         if n.type == 'literal':
-            print(indent*' ' + 'self.expect(', n.value, ')')
+            fd.write(indent*' ' + 'self.expect('+ n.value +')\n')
         elif n.type == 'sem_action':
-            print(indent*' ' + n.value)
+            fd.write(indent*' ' + n.value + '\n')
         elif n.type == 'op_start':
-            print(indent*' ' + n.value, n.args + ':')
+            fd.write(indent*' ' + n.value + ' ' + n.args + ':\n')
             indent += i
         elif n.type == 'op_end':
             indent -= i
         elif n.type == 'call':
+            fd.write(indent*' ')
             if n.args:
-                print(n.args + '=')
-            print(indent*' ' + n.value + '()')
+                fd.write(n.args + '=')
+            fd.write(n.value + '()\n')
         n = n.move()
     
     if hasReturn:
-        print(indent*' ' + 'return', hasReturn)
+        fd.write(indent*' ' + 'return ' + hasReturn + 3*'\n')
+    else:
+        fd.write(2*'\n')
+
+
+def get_productions(fname, productions):
+    f = open(fname, 'w+')
+    for p in productions.values():
+        convert(p, 4, f)
+    f.close()
 
 def compute_first(productions):
     first = {}
