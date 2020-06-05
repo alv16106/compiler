@@ -1,6 +1,7 @@
 import enum
 from coco.common import get_keyword, get_ident, get_char, get_number, char, get_string, concat, selection, star, question
 from coco.scanner import Token
+from coco.Node import Node, convert
 
 class Coco(enum.Enum):
     Ident = 1
@@ -279,6 +280,11 @@ class CocoParser:
     def get_production(self):
         self.expect(Coco.Ident)
         name = self.token.val
+        prod = {
+            'return': None,
+            'list': None,
+            'name': name
+        }
 
         # verificamos que no sea repetido
         if name in self.productions:
@@ -287,7 +293,7 @@ class CocoParser:
         # manejo de parametros
         if self.la.t == Coco.Less:
             rv = self.get_attibutes()
-            print('RETURN value:', rv)
+            prod['return'] = rv
             
         # necesitamos un =
         self.expect(Coco.Equal)
@@ -298,17 +304,34 @@ class CocoParser:
             print('Semantic action:', st)
         
         s = self.get_expresion()
+        prod['list'] = s
         self.expect(Coco.Finish)
-        return s
+
+        self.productions[name] = prod
+
+        convert(prod)
         
     
     def get_expresion(self):
         e = self.get_pterm()
 
+        if self.la.t == Coco.Or:
+            s0 = Node('op_start', 'if', args='self.la.t == white')
+            s0.addNext(e)
+            s1 = Node('op_end', '')
+            e.append(s1)
+            e = s0
+
         # Repetimos mientras el siguiente siga siento un Or
         while self.la.t == Coco.Or:
             self.move()
+            s0 = Node('op_start', 'if', args='self.la.t == white')
             e2 = self.get_pterm()
+            s0.addNext(e2)
+            s1 = Node('op_end', '')
+            e2.append(s1)
+            e.append(s0)
+            
             # TODO: decidir que hacer con las opciones
             
         return e
@@ -320,19 +343,22 @@ class CocoParser:
             resolver = self.get_resolver()
         
         t = self.get_pfactor()
-        while self.la.t != Coco.Finish and self.la.t != Coco.Or:
-            t = self.get_pfactor()
+        terminators = (Coco.Finish, Coco.Or, Coco.IterationEnd, Coco.GroupEnd, Coco.OptionEnd)
+        while self.la.t not in terminators:
+            t2 = self.get_pfactor()
+            t.append(t2)
+            t = t2
 
-        return t
+        return t.getRoot()
     
     def get_pfactor(self):
         factor = None
+        print(self.la.t)
         if self.la.t == Coco.Ident:
             self.move()
             name = self.token.val
             if name in self.tokens:
-                # Es un token, lo consumimos
-                pass
+                factor = Node('literal', name)
             else:
                 # Es una produccion que no conocemos, la llamamos
                 attr = None
@@ -341,44 +367,59 @@ class CocoParser:
                     attr = self.get_attibutes()
                 
                 if attr:
-                    # llamada con atribs
-                    pass
+                    factor = Node('call', name, attr)
                 else:
-                    #llamada sin atribs
-                    pass
-                pass
+                    factor = Node('call', name)
+
 
         elif self.la.t == Coco.String or self.la.t == Coco.Char:
             # nueva keyword
             self.move()
             name = self.token.val
             self.keywords[name] = get_keyword(name)
-            
-            # Agregamos un if para ver si la conecta con el string
-            pass
 
-        if self.la.t == Coco.GroupStart:
+            factor = Node('literal', name)
+
+            arg = 'self.la.t == ' + name
+            s0 = Node('op_start', 'if', args=arg)
+            s1 = Node('op_end', None)
+            factor.append(s1)
+            s0.addNext(factor)
+            factor = s0
+
+        elif self.la.t == Coco.GroupStart:
             self.move()
             # Grupo, ni idea que hacer
             factor = self.get_expresion()
             self.expect(Coco.GroupEnd)
-            pass
-        if self.la.t == Coco.OptionStart:
+
+        elif self.la.t == Coco.OptionStart:
             self.move()
             # Se a;ade un if
             factor = self.get_expresion()
             self.expect(Coco.OptionEnd)
-            pass
-        if self.la.t == Coco.IterationStart:
+            s0 = Node('op_start', 'if', args='self.la.t == fist')
+            s1 = Node('op_end', None)
+            factor.append(s1)
+            s0.addNext(factor)
+            factor = s0
+
+        elif self.la.t == Coco.IterationStart:
             self.move()
             # se a;ade un while
             factor = self.get_expresion()
             self.expect(Coco.IterationEnd)
-            pass
+            print(self.la.t, 'Saliendo de un ciclo while')
+            s0 = Node('op_start', 'while', args='self.la.t == fist')
+            s1 = Node('op_end', None)
+            factor.append(s1)
+            s0.addNext(factor)
+            factor = s0
+
         elif self.la.t == Coco.lpp:
             factor = self.get_semText()
-            # se escribe como es
-
+            factor = Node('sem_action', factor)
+        print(factor)
         return factor
 
 

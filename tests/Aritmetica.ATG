@@ -12,7 +12,7 @@ KEYWORDS
 while = "while".
 do = "do".
 if = "if".
-switch = "switch"
+switch = "switch".
 
 TOKENS
 
@@ -22,9 +22,9 @@ number = digit{digit}.
 PRODUCTIONS
 
 Expression<out result> =		(.int result1,result2;.)
-	Term< ref result1>
-	{    "+"Term< ref result2>		(.result1+=result2;.)
-	   | "-"Term< ref result2>		(.result1-=result2;.)
+	Term< out result1>
+	{    "+"Term< out result2>		(.result1+=result2;.)
+	   | "-"Term< out result2>		(.result1-=result2;.)
 	}							(.result=result1;.)
 	.
 
@@ -35,7 +35,7 @@ Stat = 							(.int value;.)
 	.
 
 
-Term<ref int result>=				(.int result1,result2;.)
+Term<out result>=				(.int result1,result2;.)
 	Factor<ref result1>
 	{    "*"Factor<ref result2>	(.result1*=result2;.)
 	   | "/"Factor<ref result2>	(.result1/=result2;.)
